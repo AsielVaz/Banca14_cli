@@ -1,38 +1,79 @@
-import { Image } from 'expo-image';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { ThemedView } from '@/components/themed-view';
-import { ThemedText } from '@/components/themed-text';
+import { Image } from "expo-image";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  useColorScheme,
+} from "react-native";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 export default function HomeScreen() {
-  return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+  const router = useRouter();
+  const isDark = useColorScheme() === "dark";
 
+  return (
+    <ScrollView
+      style={[
+        styles.container,
+        { backgroundColor: isDark ? "#000000" : "#f5f6fa" },
+      ]}
+      showsVerticalScrollIndicator={false}
+    >
       {/* HEADER */}
       <View style={styles.header}>
         <Image
-          source={require('@/assets/images/favicon.png')}
+          source={require("@/assets/images/favicon.png")}
           style={styles.logo}
           contentFit="contain"
         />
 
         <View style={styles.headerIcons}>
-          <Ionicons name="moon-outline" size={22} />
-          <Ionicons name="person-circle-outline" size={28} />
+          <Ionicons
+            name="moon-outline"
+            size={22}
+            color={isDark ? "#e5e7eb" : "#374151"}
+          />
+          <Ionicons
+            name="person-circle-outline"
+            size={28}
+            color={isDark ? "#e5e7eb" : "#374151"}
+          />
         </View>
       </View>
 
       {/* BREADCRUMB */}
-      <ThemedText style={styles.breadcrumb}>
+      <Text
+        style={[styles.breadcrumb, { color: isDark ? "#9ca3af" : "#6b7280" }]}
+      >
         Inicio <Text style={styles.breadcrumbSeparator}>›</Text> Inicio Banca
-      </ThemedText>
+      </Text>
 
       {/* CARD SALDO */}
-      <View style={styles.saldoCard}>
+      <View
+        style={[
+          styles.saldoCard,
+          { backgroundColor: isDark ? "#111827" : "#d6d6d6" },
+        ]}
+      >
         <View>
-          <Text style={styles.nombre}>ASIEL</Text>
-          <Text style={styles.nombre}>VAZQUEZ</Text>
-          <Text style={styles.nombre}>RIVAS</Text>
+          <Text
+            style={[styles.nombre, { color: isDark ? "#f9fafb" : "#111827" }]}
+          >
+            ASIEL
+          </Text>
+          <Text
+            style={[styles.nombre, { color: isDark ? "#f9fafb" : "#111827" }]}
+          >
+            VAZQUEZ
+          </Text>
+          <Text
+            style={[styles.nombre, { color: isDark ? "#f9fafb" : "#111827" }]}
+          >
+            RIVAS
+          </Text>
         </View>
 
         <View style={styles.saldoRight}>
@@ -43,9 +84,13 @@ export default function HomeScreen() {
 
       {/* BOTÓN RETIRAR */}
       <View style={styles.retirarContainer}>
-        <TouchableOpacity style={styles.retirarBtn}>
+        <TouchableOpacity
+          style={styles.retirarBtn}
+          onPress={() => router.push("/retiros")}
+        >
           <Ionicons name="arrow-up-outline" size={24} color="#fff" />
         </TouchableOpacity>
+
         <Text style={styles.retirarText}>RETIRAR</Text>
       </View>
 
@@ -53,18 +98,46 @@ export default function HomeScreen() {
       <View style={styles.actions}>
         <ActionButton color="#1e88e5" icon="person" />
         <ActionButton color="#fbc02d" icon="history" />
-        <ActionButton color="#e53935" icon="picture-as-pdf" />
-        <ActionButton color="#43a047" icon="description" />
       </View>
 
       {/* ÚLTIMO COMPROBANTE */}
-      <View style={styles.comprobanteCard}>
-        <View style={styles.comprobantePreview} />
-        <Text style={styles.comprobanteTitle}>Último comprobante</Text>
-        <Text style={styles.comprobanteText}>Retiro: $0.04</Text>
-        <Text style={styles.comprobanteText}>Retiro banca 14</Text>
+      <View
+        style={[
+          styles.comprobanteCard,
+          { backgroundColor: isDark ? "#111827" : "#e5e5e5" },
+        ]}
+      >
+        <View
+          style={[
+            styles.comprobantePreview,
+            { backgroundColor: isDark ? "#1f2933" : "#f3f4f6" },
+          ]}
+        />
+        <Text
+          style={[
+            styles.comprobanteTitle,
+            { color: isDark ? "#f9fafb" : "#111827" },
+          ]}
+        >
+          Último comprobante
+        </Text>
+        <Text
+          style={[
+            styles.comprobanteText,
+            { color: isDark ? "#9ca3af" : "#374151" },
+          ]}
+        >
+          Retiro: $0.04
+        </Text>
+        <Text
+          style={[
+            styles.comprobanteText,
+            { color: isDark ? "#9ca3af" : "#374151" },
+          ]}
+        >
+          Retiro banca 14
+        </Text>
       </View>
-
     </ScrollView>
   );
 }
@@ -78,6 +151,7 @@ function ActionButton({ color, icon }: { color: string; icon: any }) {
   );
 }
 
+/* 🔹 ESTILOS */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -86,9 +160,9 @@ const styles = StyleSheet.create({
 
   header: {
     marginTop: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 
   logo: {
@@ -97,13 +171,13 @@ const styles = StyleSheet.create({
   },
 
   headerIcons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
   },
 
   breadcrumb: {
     marginVertical: 12,
-    color: '#6b7280',
+    fontSize: 13,
   },
 
   breadcrumbSeparator: {
@@ -111,37 +185,36 @@ const styles = StyleSheet.create({
   },
 
   saldoCard: {
-    backgroundColor: '#d6d6d6',
     borderRadius: 12,
     padding: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 
   nombre: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: "600",
     letterSpacing: 1,
   },
 
   saldoRight: {
-    alignItems: 'flex-end',
-    justifyContent: 'center',
+    alignItems: "flex-end",
+    justifyContent: "center",
   },
 
   saldoLabel: {
     fontSize: 12,
-    color: '#2563eb',
+    color: "#2563eb",
   },
 
   saldoMonto: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2563eb',
+    fontWeight: "bold",
+    color: "#2563eb",
   },
 
   retirarContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 20,
   },
 
@@ -149,15 +222,15 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#22c55e',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#22c55e",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   retirarText: {
     marginTop: 6,
-    fontWeight: '600',
-    color: '#22c55e',
+    fontWeight: "600",
+    color: "#22c55e",
   },
 
   actions: {
@@ -167,33 +240,30 @@ const styles = StyleSheet.create({
   actionBtn: {
     height: 55,
     borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   comprobanteCard: {
-    backgroundColor: '#e5e5e5',
     borderRadius: 16,
     padding: 20,
     marginTop: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
 
   comprobantePreview: {
     width: 60,
     height: 80,
-    backgroundColor: '#f3f4f6',
     borderRadius: 8,
     marginBottom: 10,
   },
 
   comprobanteTitle: {
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 6,
   },
 
   comprobanteText: {
     fontSize: 13,
-    color: '#374151',
   },
 });
