@@ -54,6 +54,11 @@
       "eas": {
         "projectId": "dbf3c921-8f15-496d-ad9f-e08673502457"
       }
+<<<<<<< Updated upstream
     }
+=======
+    },
+    "owner": "hoppingjet"
+>>>>>>> Stashed changes
   }
 }

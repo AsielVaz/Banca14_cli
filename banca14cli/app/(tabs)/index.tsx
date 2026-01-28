@@ -6,13 +6,86 @@ import {
   TouchableOpacity,
   ScrollView,
   useColorScheme,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 
 export default function HomeScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
+
+  const [loading, setLoading] = useState(true);
+  const [nombre, setNombre] = useState("");
+  const [saldo, setSaldo] = useState("0.00");
+
+  /* 🔐 LOGOUT */
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("tokenApp");
+    console.log("Sesión cerrada");
+    router.replace("/login");
+  };
+
+  /* 📡 CARGAR DATOS INICIALES */
+  const cargarBancaIndex = async () => {
+    try {
+      const tokenApp = await AsyncStorage.getItem("tokenApp");
+
+      if (!tokenApp) {
+        console.log("No hay tokenApp");
+        return;
+      }
+
+      const response = await fetch(
+        "https://sistema14.com/app/api/bancaIndexApi.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            token: tokenApp,
+          }).toString(),
+        },
+      );
+
+      const text = await response.text();
+      console.log("Respuesta bancaIndexApi:", text);
+
+      const data = JSON.parse(text);
+
+      // 👤 NOMBRE
+      setNombre(data.nombreSimple || data.nombre || "CLIENTE");
+
+      // 💰 SALDO
+      const saldoNumerico = parseFloat(data.saldo || "0");
+      setSaldo(saldoNumerico.toFixed(2));
+    } catch (error) {
+      console.error("Error bancaIndexApi:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    cargarBancaIndex();
+  }, []);
+
+  /* 🌀 LOADER GLOBAL */
+  if (loading) {
+    return (
+      <View
+        style={[
+          styles.loaderContainer,
+          { backgroundColor: isDark ? "#000000" : "#f5f6fa" },
+        ]}
+      >
+        <ActivityIndicator size="large" color="#2563eb" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView
@@ -40,6 +113,7 @@ export default function HomeScreen() {
             name="person-circle-outline"
             size={28}
             color={isDark ? "#e5e7eb" : "#374151"}
+            onPress={handleLogout}
           />
         </View>
       </View>
@@ -58,27 +132,19 @@ export default function HomeScreen() {
           { backgroundColor: isDark ? "#111827" : "#d6d6d6" },
         ]}
       >
-        <View>
+        <View style={styles.nombreContainer}>
           <Text
             style={[styles.nombre, { color: isDark ? "#f9fafb" : "#111827" }]}
+            numberOfLines={2}
+            ellipsizeMode="tail"
           >
-            ASIEL
-          </Text>
-          <Text
-            style={[styles.nombre, { color: isDark ? "#f9fafb" : "#111827" }]}
-          >
-            VAZQUEZ
-          </Text>
-          <Text
-            style={[styles.nombre, { color: isDark ? "#f9fafb" : "#111827" }]}
-          >
-            RIVAS
+            {nombre}
           </Text>
         </View>
 
         <View style={styles.saldoRight}>
           <Text style={styles.saldoLabel}>Saldo de la cuenta</Text>
-          <Text style={styles.saldoMonto}>$0.01</Text>
+          <Text style={styles.saldoMonto}>${saldo}</Text>
         </View>
       </View>
 
@@ -96,66 +162,49 @@ export default function HomeScreen() {
 
       {/* BOTONES ACCIONES */}
       <View style={styles.actions}>
-        <ActionButton color="#1e88e5" icon="person" />
-        <ActionButton color="#fbc02d" icon="history" />
+        <ActionButton color="#1e88e5" icon="person" route="/contactos" />
+        <ActionButton color="#fbc02d" icon="history" route="/movimientos" />
       </View>
 
       {/* ÚLTIMO COMPROBANTE */}
-      <View
-        style={[
-          styles.comprobanteCard,
-          { backgroundColor: isDark ? "#111827" : "#e5e5e5" },
-        ]}
-      >
-        <View
-          style={[
-            styles.comprobantePreview,
-            { backgroundColor: isDark ? "#1f2933" : "#f3f4f6" },
-          ]}
-        />
-        <Text
-          style={[
-            styles.comprobanteTitle,
-            { color: isDark ? "#f9fafb" : "#111827" },
-          ]}
-        >
-          Último comprobante
-        </Text>
-        <Text
-          style={[
-            styles.comprobanteText,
-            { color: isDark ? "#9ca3af" : "#374151" },
-          ]}
-        >
-          Retiro: $0.04
-        </Text>
-        <Text
-          style={[
-            styles.comprobanteText,
-            { color: isDark ? "#9ca3af" : "#374151" },
-          ]}
-        >
-          Retiro banca 14
-        </Text>
-      </View>
+  
     </ScrollView>
   );
 }
 
 /* 🔹 BOTÓN DE ACCIÓN */
-function ActionButton({ color, icon }: { color: string; icon: any }) {
+function ActionButton({
+  color,
+  icon,
+  route,
+}: {
+  color: string;
+  icon: any;
+  route: string;
+}) {
+  const router = useRouter();
+
   return (
-    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: color }]}>
+    <TouchableOpacity
+      style={[styles.actionBtn, { backgroundColor: color }]}
+      onPress={() => router.push(route)}
+    >
       <MaterialIcons name={icon} size={26} color="#fff" />
     </TouchableOpacity>
   );
 }
 
-/* 🔹 ESTILOS */
+/* 🎨 ESTILOS */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
+  },
+
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   header: {
@@ -266,4 +315,9 @@ const styles = StyleSheet.create({
   comprobanteText: {
     fontSize: 13,
   },
+  nombreContainer: {
+  flex: 1,
+  paddingRight: 12, // espacio para que no choque con el saldo
+},
+
 });
